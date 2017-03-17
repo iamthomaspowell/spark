@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  anaconda:
+    image: continuumio/miniconda3:4.3.11
+    volumes:
+      - conda:/opt/conda:ro
+  spark:
+    image: spark
+    environment:
+      CONDA_BIN: /opt/conda/bin/conda
+    volumes:
+      - conda:/opt/conda:ro
+
+volumes:
+  conda:
