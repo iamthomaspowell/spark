@@ -26,7 +26,7 @@ jobs:
       - run: |
           docker build -t spark .
       - run: |
-          docker-compose up -d
+          /usr/local/bin/docker-compose up -d
       - run:
           name: Create Conda Environments
           command: |
