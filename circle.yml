@@ -75,3 +75,8 @@ deployment:
     commands:
       - dev/publish.sh
       - curl -u $BINTRAY_USERNAME:$BINTRAY_PASSWORD -X POST https://api.bintray.com/content/palantir/releases/spark/$(git describe --tags)/publish
+  snapshot-k8s:
+    branch: k8s-hotfix
+    commands:
+      - dev/publish.sh
+      - curl -u $BINTRAY_USERNAME:$BINTRAY_PASSWORD -X POST https://api.bintray.com/content/palantir/releases/spark/$(git describe --tags)/publish
