@@ -65,10 +65,8 @@ private[spark] object HttpClientUtil extends Logging {
 
     val proxySelector = new ProxySelector {
       override def select(uri: URI): java.util.List[java.net.Proxy] = {
-        val directProxy = new java.net.Proxy(
-          java.net.Proxy.Type.DIRECT, new InetSocketAddress(uri.getHost, uri.getPort))
         val resolvedProxy = maybeNoProxy.find( _ == uri.getHost)
-          .map( _ => directProxy)
+          .map( _ => java.net.Proxy.NO_PROXY)
           .orElse(uri.getScheme match {
             case "http" =>
               logInfo(s"Looking up http proxies to route $uri")
@@ -81,7 +79,7 @@ private[spark] object HttpClientUtil extends Logging {
                 matchingUriExists(uri, httpsUris)
               }
             case _ => None
-          }).getOrElse(directProxy)
+          }).getOrElse(java.net.Proxy.NO_PROXY)
         logInfo(s"Routing $uri through ${resolvedProxy.address()} with proxy" +
           s" type ${resolvedProxy.`type`()}")
         Collections.singletonList(resolvedProxy)
@@ -129,6 +127,6 @@ private[spark] object HttpClientUtil extends Logging {
   private def uriStringToProxy(uriString: String): java.net.Proxy = {
     val uriObject = URI.create(uriString)
     new java.net.Proxy(
-      java.net.Proxy.Type.SOCKS, new InetSocketAddress(uriObject.getHost, uriObject.getPort))
+      java.net.Proxy.Type.HTTP, new InetSocketAddress(uriObject.getHost, uriObject.getPort))
   }
 }
