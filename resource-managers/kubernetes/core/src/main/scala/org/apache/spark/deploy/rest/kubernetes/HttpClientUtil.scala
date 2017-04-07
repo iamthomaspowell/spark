@@ -59,7 +59,9 @@ private[spark] object HttpClientUtil extends Logging {
       .orElse(maybeAllProxy)
       .map(uriStringToProxy)
     val maybeNoProxy = Option.apply(System.getProperty(Config.KUBERNETES_NO_PROXY))
-      .flatMap(_.split(",").toSeq)
+      .map(_.split(","))
+      .toSeq
+      .flatten
 
     val proxySelector = new ProxySelector {
       override def select(uri: URI): java.util.List[java.net.Proxy] = {
