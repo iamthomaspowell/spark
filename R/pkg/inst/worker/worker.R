@@ -27,6 +27,30 @@ elapsedSecs <- function() {
   proc.time()[3]
 }
 
+readRows <- function(inputCon, width) {
+  # readRows will read multiple continuous objects from
+  # a DataOutputStream. There is no preceding field telling the count
+  # of the objects, so the number of objects varies, we try to read
+  # all objects in a loop until the end of the stream.
+  data <- vector('list', 10)
+  cap <- 10
+  len <- 0
+  secs <- elapsedSecs()
+  while (TRUE) {
+    type <- SparkR:::readType(inputCon)
+    if (type == "") {
+      break
+    }
+    if(len == cap) {
+      data <- c(data, vector('list', cap))
+      cap <- cap*2
+    }
+    len <- len + 1
+    data[[len]] <- SparkR:::readTypedObject(inputCon, type)
+  }
+  return(data[1:len])
+}
+
 compute <- function(mode, partition, serializer, deserializer, key,
              colNames, computeFunc, inputData) {
   if (mode > 0) {
@@ -167,7 +191,7 @@ if (isEmpty != 0) {
       keys <- dataWithKeys$keys
       data <- dataWithKeys$data
     } else if (deserializer == "row") {
-      data <- SparkR:::readMultipleObjects(inputCon)
+      data <- readRows(inputCon, length(colNames))
     }
 
     # Timing reading input data for execution
